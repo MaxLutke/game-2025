@@ -1,62 +1,159 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Jacks = Points</title>
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#0a7b3e" />
+    <title>High–Low Rush</title>
     <style>
-      :root { --bg:#0b5137; --felt:#136a47; --card:#ffffff; --ink:#111; }
+      :root{
+        --felt1:#0a5a33; --felt2:#0c6b3b; --felt3:#074b2a;
+        --ink:#d6efe4;
+        --card:#ffffff; --edge:#dfe6ee;
+        --shadow:0 14px 40px rgba(0,0,0,.35);
+        --radius:20px;
+        --gold:#ffd166; --gold2:#ffb703;
+      }
       *{box-sizing:border-box}
-      body{margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:linear-gradient(180deg,var(--bg),var(--felt)); color:#fff; min-height:100vh; display:grid; place-items:center}
-      .wrap{width:clamp(320px, 90vw, 640px); text-align:center; padding:24px}
-      h1{margin:0 0 8px; font-size:28px}
-      .meta{opacity:.9; margin-bottom:20px}
-      .table{display:grid; gap:16px; grid-template-columns:1fr; justify-items:center}
-      .stats{display:flex; gap:16px; justify-content:center; flex-wrap:wrap}
-      .stat{background:rgba(255,255,255,.12); padding:8px 12px; border-radius:999px; font-weight:600}
-      .card{
-        width:160px; height:224px; background:var(--card); color:var(--ink);
-        border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.3);
-        display:grid; place-items:center; font-size:56px; position:relative;
+      html,body{height:100%}
+      body{
+        margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+        color:var(--ink);
+        background:radial-gradient(120% 80% at 50% 10%, var(--felt2) 0%, var(--felt1) 55%, var(--felt3) 100%);
+        overflow-x:hidden;
       }
-      .card .small{position:absolute; top:8px; left:10px; font-size:18px}
-      .card .small.bottom{top:auto; left:auto; bottom:8px; right:10px; transform:rotate(180deg)}
-      .empty{opacity:.6; font-size:16px}
-      .controls{display:flex; gap:12px; justify-content:center; margin-top:6px; flex-wrap:wrap}
-      button{
-        appearance:none; border:none; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer;
-        background:#ffd36a; color:#2b2200; box-shadow:0 6px 0 #caa349;
+      body::before{
+        content:""; position:fixed; inset:0; pointer-events:none;
+        background:
+          radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.06), transparent 40%),
+          radial-gradient(ellipse at 70% 80%, rgba(255,255,255,.04), transparent 50%),
+          repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 2px, transparent 2px 4px);
+        mix-blend-mode:overlay;
       }
-      button:active{transform:translateY(2px); box-shadow:0 4px 0 #caa349}
-      button.secondary{background:#d0e6ff; color:#0b2a52; box-shadow:0 6px 0 #9bbbe0}
-      .footer{margin-top:18px; opacity:.8; font-size:12px}
+      .app{min-height:100dvh; display:flex; flex-direction:column; padding:14px; padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+      .top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px}
+      .stats{display:flex; gap:8px; flex-wrap:wrap}
+      .pill{
+        background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25);
+        border-radius:999px; padding:6px 10px; font-weight:800
+      }
+      .table{flex:1; display:grid; place-items:center; position:relative; max-width:900px; margin:0 auto; width:100%;}
+      .fx{position:absolute; inset:0; pointer-events:none}
+      .shock{position:absolute; inset:0; pointer-events:none; border-radius:24px; opacity:0}
+      .money-hud{
+        position:absolute; top:6%; left:50%; transform:translate(-50%,0);
+        display:inline-flex; align-items:center; gap:10px; padding:10px 18px;
+        border-radius:999px; color:#3a2a00; font-weight:1000;
+        background:linear-gradient(180deg, var(--gold), var(--gold2));
+        box-shadow:0 12px 30px rgba(0,0,0,.35), 0 0 24px rgba(255,215,90,.45);
+        font-size:28px; letter-spacing:.3px;
+      }
+      .money-hud .amt{min-width:120px; text-align:right}
+      .money-hud.pop{animation:moneypop .45s cubic-bezier(.2,.8,.2,1)}
+      @keyframes moneypop{0%{transform:translate(-50%,-6px) scale(.9)}50%{transform:translate(-50%,-2px) scale(1.06)}100%{transform:translate(-50%,0) scale(1)}}
+      .pot{position:absolute; top:calc(6% + 54px); left:50%; transform:translateX(-50%);
+        background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:4px 10px; font-weight:800; font-size:14px}
+      .stack{position:absolute; width:230px; height:325px; transform:translateY(8px)}
+      .back{
+        position:absolute; inset:0; border-radius:var(--radius);
+        background:
+          radial-gradient(circle at 30% 20%, #2a7e55 0 35%, transparent 36%),
+          conic-gradient(from 45deg at 50% 50%, #195a3a 0 25%, #2a7e55 0 50%, #195a3a 0 75%, #2a7e55 0 100%);
+        background-size:18px 18px, auto;
+        border:1px solid rgba(0,0,0,.25); box-shadow:var(--shadow);
+      }
+      .back:nth-child(1){ transform:translate(12px,-10px) rotate(-2deg); opacity:.85 }
+      .back:nth-child(2){ transform:translate(8px,-6px) rotate(-1deg); opacity:.9 }
+      .back:nth-child(3){ transform:translate(4px,-2px) rotate(0deg); opacity:.95 }
+      .face{
+        width:230px; height:325px; background:var(--card);
+        border:1px solid var(--edge); border-radius:var(--radius); box-shadow:var(--shadow);
+        position:relative; display:grid; place-items:center; user-select:none; pointer-events:none; overflow:hidden;
+        transform:translateZ(0);
+      }
+      .face::after{
+        content:""; position:absolute; inset:-40% -20% auto -20%; height:60%;
+        background:linear-gradient(180deg, rgba(255,255,255,.35), transparent 60%);
+        transform:skewY(-18deg); pointer-events:none; mix-blend-mode:screen;
+      }
+      .face .big{font-size:88px; line-height:1}
+      .face .small{position:absolute; top:12px; left:14px; font-size:20px}
+      .face .small.bottom{top:auto; left:auto; bottom:12px; right:14px; transform:rotate(180deg)}
+      .face.red{color:#c1121f}
+      .face.black{color:#111827}
+      .flip{animation:flip .28s ease both}
+      @keyframes flip{0%{transform:rotateY(90deg) scale(.96)}100%{transform:rotateY(0) scale(1)}}
+      .glow{animation:glow .5s ease-out}
+      @keyframes glow{0%{box-shadow:var(--shadow)}50%{box-shadow:0 0 40px rgba(255,255,255,.85), var(--shadow)}100%{box-shadow:var(--shadow)}}
+      .shake{animation:shake .28s ease}
+      @keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)}}
+      .fly{position:absolute; width:230px; height:325px; left:0; top:0; border-radius:var(--radius);
+           pointer-events:none; box-shadow:var(--shadow); border:1px solid var(--edge); background:#fff; display:grid; place-items:center; overflow:hidden; filter:blur(.5px) brightness(.98)}
+      .fly .small{position:absolute; top:12px; left:14px; font-size:20px}
+      .fly .small.bottom{top:auto; left:auto; bottom:12px; right:14px; transform:rotate(180deg)}
+      .fly::after{content:""; position:absolute; inset:-40% -20% auto -20%; height:60%; background:linear-gradient(180deg, rgba(255,255,255,.35), transparent 60%); transform:skewY(-18deg)}
+      .fly.red{color:#c1121f} .fly.black{color:#111827}
+      @keyframes upRight {to{transform:translate(260px, -240px) rotate(20deg); opacity:0}}
+      @keyframes downRight {to{transform:translate(260px, 240px) rotate(-16deg); opacity:0}}
+      .toast{position:absolute; left:50%; top:48%; transform:translate(-50%,-50%); font-weight:900; font-size:26px; color:#ffe97a; text-shadow:0 2px 8px rgba(0,0,0,.5); opacity:0}
+      .toast.show{animation:toast 760ms ease-out}
+      @keyframes toast{0%{transform:translate(-50%,-30%) scale(.8); opacity:0}
+                       30%{transform:translate(-50%,-50%) scale(1); opacity:1}
+                       100%{transform:translate(-50%,-70%) scale(1.06); opacity:0}}
+      .msg{ text-align:center; font-size:14px; margin-top:10px; text-shadow:0 1px 2px rgba(0,0,0,.25) }
+      .actions{display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:900px; margin:12px auto 0}
+      .btn{appearance:none; border:0; border-radius:18px; padding:16px 18px; font-weight:900; font-size:18px; cursor:pointer; color:#062016; box-shadow:0 10px 26px rgba(0,0,0,.25); transform:translateZ(0)}
+      .lower{ background:linear-gradient(180deg,#fbbf24,#f59e0b) }
+      .higher{ background:linear-gradient(180deg,#34d399,#10b981) }
+      .cash{ background:linear-gradient(180deg,#ffe68a,#ffc93d); color:#3a2a00 }
+      .btn.press{animation:press .18s ease}
+      @keyframes press{0%{transform:scale(1)}50%{transform:scale(.96)}100%{transform:scale(1)}}
+      .chips{display:flex; gap:8px; justify-content:center; margin-top:8px}
+      .chip{padding:8px 12px; border-radius:999px; font-weight:900; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.12); cursor:pointer}
+      .chip.active{background:linear-gradient(180deg,#fff,#ffd); color:#3a2a00; box-shadow:0 6px 16px rgba(0,0,0,.25)}
+      @media (min-width:760px){
+        .face{ width:250px; height:355px }
+        .stack{ width:250px; height:355px }
+        .fly{  width:250px; height:355px }
+      }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <h1>Jacks = Points</h1>
-      <div class="meta">Draw from a 52-card deck. Each Jack scores +1.</div>
-
-      <div class="table">
-        <div id="card" class="card">
-          <div class="empty">No card drawn yet</div>
-        </div>
-
+    <div class="app">
+      <div class="top">
         <div class="stats">
-          <div class="stat">Score: <span id="score">0</span></div>
-          <div class="stat">Cards left: <span id="left">52</span></div>
-          <div class="stat">Jacks found: <span id="jacks">0</span></div>
-        </div>
-
-        <div class="controls">
-          <button id="drawBtn">Draw a card</button>
-          <button id="resetBtn" class="secondary">Reset deck</button>
+          <div class="pill">Cards remaining <span id="left">52</span></div>
+          <div class="pill">Streak <span id="streak">0</span> (<span id="mult">x1</span>)</div>
+          <div class="pill">Best $<span id="best">0</span></div>
         </div>
       </div>
-
-      <div class="footer">Tip: Press <b>Space</b> to draw.</div>
+      <div class="table">
+        <div class="money-hud" id="moneyHud">💰 <span class="amt" id="cash">$0</span></div>
+        <div class="pot" id="pot">Pot: +$0</div>
+        <div class="stack" aria-hidden="true">
+          <div class="back"></div><div class="back"></div><div class="back"></div>
+        </div>
+        <canvas class="fx" id="fx"></canvas>
+        <div class="shock" id="shock"></div>
+        <div class="face" id="face"><div class="big">?</div></div>
+        <div class="toast" id="toast">+$10</div>
+        <div class="msg" id="msg">Aces are highest. First card is up — choose Higher or Lower.</div>
+      </div>
+      <div class="actions">
+        <button id="lowerBtn" class="btn lower">Lower ⬇︎</button>
+        <button id="higherBtn" class="btn higher">Higher ⬆︎</button>
+        <button id="cashBtn" class="btn cash" style="grid-column:1 / -1">💵 Cash Out</button>
+      </div>
+      <div class="chips">
+        <div class="chip active" data-bet="5">$5</div>
+        <div class="chip" data-bet="10">$10</div>
+        <div class="chip" data-bet="25">$25</div>
+      </div>
     </div>
-
     <script type="module" src="./main.js"></script>
   </body>
 </html>
+
