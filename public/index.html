@@ -3,12 +3,60 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>My First Game</title>
-    <style>body{font-family:system-ui, sans-serif; padding:2rem}</style>
+    <title>Jacks = Points</title>
+    <style>
+      :root { --bg:#0b5137; --felt:#136a47; --card:#ffffff; --ink:#111; }
+      *{box-sizing:border-box}
+      body{margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:linear-gradient(180deg,var(--bg),var(--felt)); color:#fff; min-height:100vh; display:grid; place-items:center}
+      .wrap{width:clamp(320px, 90vw, 640px); text-align:center; padding:24px}
+      h1{margin:0 0 8px; font-size:28px}
+      .meta{opacity:.9; margin-bottom:20px}
+      .table{display:grid; gap:16px; grid-template-columns:1fr; justify-items:center}
+      .stats{display:flex; gap:16px; justify-content:center; flex-wrap:wrap}
+      .stat{background:rgba(255,255,255,.12); padding:8px 12px; border-radius:999px; font-weight:600}
+      .card{
+        width:160px; height:224px; background:var(--card); color:var(--ink);
+        border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.3);
+        display:grid; place-items:center; font-size:56px; position:relative;
+      }
+      .card .small{position:absolute; top:8px; left:10px; font-size:18px}
+      .card .small.bottom{top:auto; left:auto; bottom:8px; right:10px; transform:rotate(180deg)}
+      .empty{opacity:.6; font-size:16px}
+      .controls{display:flex; gap:12px; justify-content:center; margin-top:6px; flex-wrap:wrap}
+      button{
+        appearance:none; border:none; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer;
+        background:#ffd36a; color:#2b2200; box-shadow:0 6px 0 #caa349;
+      }
+      button:active{transform:translateY(2px); box-shadow:0 4px 0 #caa349}
+      button.secondary{background:#d0e6ff; color:#0b2a52; box-shadow:0 6px 0 #9bbbe0}
+      .footer{margin-top:18px; opacity:.8; font-size:12px}
+    </style>
   </head>
   <body>
-    <h1>Environment ready ✅</h1>
-    <p>If you see this page, your GitHub + Codespaces setup works.</p>
+    <div class="wrap">
+      <h1>Jacks = Points</h1>
+      <div class="meta">Draw from a 52-card deck. Each Jack scores +1.</div>
+
+      <div class="table">
+        <div id="card" class="card">
+          <div class="empty">No card drawn yet</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">Score: <span id="score">0</span></div>
+          <div class="stat">Cards left: <span id="left">52</span></div>
+          <div class="stat">Jacks found: <span id="jacks">0</span></div>
+        </div>
+
+        <div class="controls">
+          <button id="drawBtn">Draw a card</button>
+          <button id="resetBtn" class="secondary">Reset deck</button>
+        </div>
+      </div>
+
+      <div class="footer">Tip: Press <b>Space</b> to draw.</div>
+    </div>
+
     <script type="module" src="./main.js"></script>
   </body>
 </html>
